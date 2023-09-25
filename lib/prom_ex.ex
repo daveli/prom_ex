@@ -274,16 +274,22 @@ defmodule PromEx do
         |> Map.get(:grafana_config)
         |> case do
           :disabled ->
-            :default
+            %{folder_name: :default}
 
-          grafana_config ->
-            Map.get(grafana_config, :folder_name, :default)
+          %{folder_uid: folder_uid} when not is_nil(folder_uid) ->
+            %{folder_uid: folder_uid}
+
+          %{folder_name: folder_name} ->
+            %{folder_name: folder_name || :default}
         end
         |> case do
-          :default ->
+          %{folder_uid: folder_uid} ->
+            folder_uid
+
+          %{folder_name: :default} ->
             :default
 
-          folder_name ->
+          %{folder_name: folder_name} ->
             # Grafana limits us to 40 character UIDs...so taking the MD5 of
             # a complete unique identifier to use as the UID
             :md5
